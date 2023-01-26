@@ -1,54 +1,70 @@
-﻿using OpenQA.Selenium;
+﻿
+using class_test;
+using OpenQA.Selenium;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
 using System.Linq;
-using System.Reflection;
-using System.Reflection.Metadata;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using class_test;
+using System.Xml.Linq;
 
 namespace class_test
 {
     public class Results
     {
         private IWebDriver driver;
-        IReadOnlyList<IWebElement> items;
-        private Dictionary<string, string> filter = new Dictionary<string, string>();
-        //private string xpath = "$x("//span[@class='a-price' and translate(descendant::span[@class='a-offscreen']//.,'$','')]")";
-        public Dictionary<string, string> Filter
-        {
-            get { return this.filter; }
-            set { this.filter = value; }
-        }
+
         public Results(IWebDriver driver)
         {
             this.driver = driver;
         }
-        enum DictionaryKeys
+        public List<Item> GetResultsBy(Dictionary<string, string> filters)
         {
-            price_lower_then,
-            price_higher_or_equal,
-            free_shipping
-        }
-       /* public List<Item> GetResultsBy(Dictionary<string, string> filters)
-        {
-            string xpath = "$x(\"//span[@class='a-price' and translate(descendant::span[@class='a-offscreen']//.,'$','')]\")";
-            foreach (KeyValuePair<string, string> filter in filters)
+            List<Item> items = new List<Item>();
+
+            string xPath = "//div[@data-component-type='s-search-result' ";
+
+            foreach (string key in filters.Keys)
             {
-                switch (filter.Key)
+                switch (key)
                 {
-                    case DictionaryKeys.price_lower_then.ToString():
-                        xpath = filter.Value;
+                    case "Price Lower Then":
+                        xPath += "and descendant::span[@class='a-offscreen' and translate(text(),'$,','')<" + filters[key] + " and parent::span[not(contains(@data-a-strike,'true'))]]";
                         break;
-                    case DictionaryKeys.price_higher_or_equal.ToString():
-                        xpath = filter.Value;
+                    case "Price Higher Or Equal Then":
+                        xPath += "and descendant::span[@class='a-offscreen' and translate(text(),'$,','')>=" + filters[key] + " and parent::span[not(contains(@data-a-strike,'true'))]]";
                         break;
-                    case DictionaryKeys.free_shipping.ToString():
-                        xpath = filter.Value;
+                    case "Free Shipping":
+                        if (filters[key].Equals("true"))
+                        {
+                            xPath += "and descendant::span[@class='a-color-base a-text-bold' and contains (text(),'FREE')]";
+                        }
                         break;
+                    default:
+                        return null;
                 }
             }
-        }*/
+            xPath += "]";
+
+            List<IWebElement> webElements = this.driver.FindElements(By.XPath(xPath)).ToList<IWebElement>();
+
+            foreach (IWebElement webElement in webElements)
+            {
+                // Get the title, price, and link
+                string title = webElement.FindElement(By.XPath(".//span[@class='a-size-medium a-color-base a-text-normal']")).Text;
+                string price = webElement.FindElement(By.XPath(".//span[@class= 'a-price-whole']")).Text + '.' + webElement.FindElement(By.XPath("//span[@class='a-price-fraction']")).Text + '$';
+                string link = webElement.FindElement(By.XPath(".//a[@class='a-link-normal s-underline-text s-underline-link-text s-link-style a-text-normal']")).GetAttribute("href");
+
+                Item itemElement = new Item(title, price, link);
+                items.Add(itemElement);
+
+                Console.WriteLine(itemElement.toString());
+            }
+            return items;
+        }
     }
 }
