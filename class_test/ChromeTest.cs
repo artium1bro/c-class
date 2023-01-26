@@ -18,9 +18,9 @@ namespace class_test
 
             driver = BrowserFactory.GetDriver("chrome", new List<string> { });
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-            filter.Add("Price Lower Then", "50");
-            filter.Add("Price Higher Or Equal Then", "10");
-            filter.Add("Free Shipping", "true");
+            filter.Add("Price_Lower_Then", "100");
+            filter.Add("Price_Higher_Or_Equal_Then", "50");
+            filter.Add("Free_Shipping", "true");
 
 
         }

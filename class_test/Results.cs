@@ -32,13 +32,13 @@ namespace class_test
             {
                 switch (key)
                 {
-                    case "Price Lower Then":
+                    case "Price_Lower_Then":
                         xPath += "and descendant::span[@class='a-offscreen' and translate(text(),'$,','')<" + filters[key] + " and parent::span[not(contains(@data-a-strike,'true'))]]";
                         break;
-                    case "Price Higher Or Equal Then":
+                    case "Price_Higher_Or_Equal_Then":
                         xPath += "and descendant::span[@class='a-offscreen' and translate(text(),'$,','')>=" + filters[key] + " and parent::span[not(contains(@data-a-strike,'true'))]]";
                         break;
-                    case "Free Shipping":
+                    case "Fre_Shipping":
                         if (filters[key].Equals("true"))
                         {
                             xPath += "and descendant::span[@class='a-color-base a-text-bold' and contains (text(),'FREE')]";
